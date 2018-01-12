@@ -1,11 +1,20 @@
 version: '3'
 
 services:
-  box:
+  default:
     build:
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/default/Dockerfile
       context: .
-    image: kreczko/fast-dev
+      args:
+        USERID: ${USERID}
+    image: kreczko/fast-dev:default
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ~/.gitconfig:/home/builder/.gitconfig
+      - ~/.globus/:/home/builder/.globus
+      - ~/.ssh/:/home/builder/.ssh
+      - ${CVMFS_TMP_DIR}:/var/lib/cvmfs/shared
+      - ${DEV_DIR}:/code
     environment:
       DISPLAY: ${DISPLAY}
       TERM: ${TERM}
@@ -14,11 +23,33 @@ services:
     domainname: foo.bar
     hostname: fast
     network_mode: "host"
-    volumes:
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      - .:/code
     working_dir: /code
     entrypoint:
       - tail
       - -f
       - "/dev/null"
+
+  cvmfs:
+    build:
+      dockerfile: docker/cvmfs/Dockerfile
+      context: .
+      args:
+        USERID: ${USERID}
+    image: kreczko/fast-dev:cvmfs
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ~/.gitconfig:/home/builder/.gitconfig
+      - ~/.globus/:/home/builder/.globus
+      - ~/.ssh/:/home/builder/.ssh
+      - ${CVMFS_TMP_DIR}:/var/lib/cvmfs/shared
+      - ${DEV_DIR}:/code
+    environment:
+      DISPLAY: ${DISPLAY}
+      TERM: ${TERM}
+    tty: true
+    privileged: true
+    stdin_open: true
+    domainname: foo.bar
+    hostname: fast
+    network_mode: "host"
+    working_dir: /code

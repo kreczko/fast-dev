@@ -1,0 +1,7 @@
+setuptools
+numpy
+pandas
+root_numpy
+root_pandas
+rootpy
+uproot
